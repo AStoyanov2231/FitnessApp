@@ -1,0 +1,360 @@
+{
+  "designSystem": {
+    "baseColors": {
+      "primary": "#C4FF4A",
+      "secondary": "#1A1A1A",
+      "tertiary": "#8B5CF6",
+      "quaternary": "#EC4899",
+      "accent": "#06B6D4",
+      "neutral": {
+        "dark": "#1A1A1A",
+        "mediumDark": "#2A2A2A",
+        "medium": "#6B7280",
+        "light": "#E5E7EB",
+        "white": "#FFFFFF"
+      }
+    },
+    "gradients": {
+      "primaryYellow": {
+        "background": "linear-gradient(135deg, #C4FF4A 0%, #D4FF5A 100%)",
+        "application": "highlight_cards, challenge_cards, progress_indicators"
+      },
+      "purpleAccent": {
+        "background": "linear-gradient(135deg, #8B5CF6 0%, #A855F7 100%)",
+        "application": "secondary_cards, goal_cards, lower_body_workout_cards"
+      },
+      "pinkAccent": {
+        "background": "linear-gradient(135deg, #EC4899 0%, #F472B6 100%)",
+        "application": "upper_body_workout_cards, accent_elements"
+      },
+      "darkOverlay": {
+        "background": "linear-gradient(180deg, rgba(26, 26, 26, 0.7) 0%, rgba(26, 26, 26, 0.9) 100%)",
+        "application": "video_overlays, content_overlays"
+      }
+    },
+    "elementStyling": {
+      "screenBackground": {
+        "background": "#1A1A1A",
+        "DO_NOT": "Never apply gradients to main screen backgrounds"
+      },
+      "cards": {
+        "highlightCard": {
+          "background": "linear-gradient(135deg, #C4FF4A 0%, #D4FF5A 100%)",
+          "borderRadius": "16px",
+          "shadow": "0 4px 20px rgba(196, 255, 74, 0.2)",
+          "padding": "16px",
+          "textColor": "#1A1A1A",
+          "application": "today_challenge_card, progress_highlights"
+        },
+        "darkCard": {
+          "background": "#2A2A2A",
+          "borderRadius": "16px",
+          "shadow": "0 2px 12px rgba(0, 0, 0, 0.3)",
+          "padding": "16px",
+          "border": "none",
+          "application": "calendar_container, activity_summary"
+        },
+        "workoutCard": {
+          "purpleVariant": {
+            "background": "linear-gradient(135deg, #8B5CF6 0%, #A855F7 100%)",
+            "borderRadius": "20px",
+            "border": "2px solid #C4FF4A",
+            "shadow": "0 4px 16px rgba(139, 92, 246, 0.25)",
+            "padding": "20px",
+            "textColor": "#FFFFFF",
+            "application": "lower_body_workout_cards"
+          },
+          "pinkVariant": {
+            "background": "linear-gradient(135deg, #EC4899 0%, #F472B6 100%)",
+            "borderRadius": "20px",
+            "border": "2px solid #C4FF4A",
+            "shadow": "0 4px 16px rgba(236, 72, 153, 0.25)",
+            "padding": "20px",
+            "textColor": "#FFFFFF",
+            "application": "upper_body_workout_cards"
+          }
+        },
+        "videoCard": {
+          "background": "#000000",
+          "borderRadius": "16px",
+          "border": "2px solid #C4FF4A",
+          "overlay": "linear-gradient(180deg, rgba(26, 26, 26, 0.4) 0%, rgba(26, 26, 26, 0.8) 100%)",
+          "shadow": "0 6px 24px rgba(0, 0, 0, 0.4)",
+          "application": "workout_video_containers"
+        }
+      },
+      "buttons": {
+        "primary": {
+          "background": "#C4FF4A",
+          "textColor": "#C4FF4A",
+          "borderRadius": "12px",
+          "padding": "12px 24px",
+          "fontWeight": "600",
+          "shadow": "0 2px 8px rgba(196, 255, 74, 0.3)",
+          "hover": {
+            "background": "#B8F23F",
+            "textColor": "#B8F23F",
+            "shadow": "0 4px 12px rgba(196, 255, 74, 0.4)"
+          },
+          "DO_NOT": "Never apply gradients to primary buttons"
+        },
+        "secondary": {
+          "background": "#2A2A2A",
+          "textColor": "#C4FF4A",
+          "border": "1px solid #3A3A3A",
+          "borderRadius": "12px",
+          "padding": "12px 24px",
+          "fontWeight": "500",
+          "hover": {
+            "background": "#3A3A3A",
+            "textColor": "#C4FF4A",
+            "borderColor": "#4A4A4A"
+          }
+        },
+        "pill": {
+          "active": {
+            "background": "#C4FF4A",
+            "textColor": "#C4FF4A",
+            "borderRadius": "20px",
+            "padding": "8px 16px",
+            "fontWeight": "600",
+            "shadow": "0 2px 6px rgba(0, 0, 0, 0.1)"
+          },
+          "inactive": {
+            "background": "transparent",
+            "textColor": "#6B7280",
+            "border": "1px solid #3A3A3A",
+            "borderRadius": "20px",
+            "padding": "8px 16px",
+            "fontWeight": "500"
+          }
+        },
+        "floating": {
+          "background": "#C4FF4A",
+          "borderRadius": "50%",
+          "width": "56px",
+          "height": "56px",
+          "shadow": "0 6px 20px rgba(0, 0, 0, 0.15)",
+          "iconColor": "#C4FF4A",
+          "application": "pause_play_controls"
+        }
+      },
+      "icons": {
+        "navigation": {
+          "inactive": {
+            "fill": "#6B7280",
+            "background": "none",
+            "size": "24px"
+          },
+          "active": {
+            "fill": "#C4FF4A",
+            "background": "none",
+            "size": "24px"
+          }
+        },
+        "card": {
+          "onDark": {
+            "fill": "#FFFFFF",
+            "background": "none",
+            "size": "20px"
+          },
+          "onLight": {
+            "fill": "#1A1A1A",
+            "background": "none",
+            "size": "20px"
+          }
+        },
+        "circular": {
+          "background": "rgba(255, 255, 255, 0.2)",
+          "borderRadius": "50%",
+          "padding": "8px",
+          "iconFill": "#FFFFFF",
+          "size": "32px",
+          "application": "workout_card_icons"
+        }
+      },
+      "text": {
+        "heading": {
+          "h1": {
+            "color": "#FFFFFF",
+            "fontSize": "28px",
+            "fontWeight": "700",
+            "lineHeight": "1.2"
+          },
+          "h2": {
+            "color": "#FFFFFF",
+            "fontSize": "22px",
+            "fontWeight": "600",
+            "lineHeight": "1.3"
+          },
+          "h3": {
+            "color": "#FFFFFF",
+            "fontSize": "18px",
+            "fontWeight": "600",
+            "lineHeight": "1.4"
+          }
+        },
+        "body": {
+          "primary": {
+            "color": "#FFFFFF",
+            "fontSize": "16px",
+            "fontWeight": "400",
+            "lineHeight": "1.5"
+          },
+          "secondary": {
+            "color": "#9CA3AF",
+            "fontSize": "14px",
+            "fontWeight": "400",
+            "lineHeight": "1.4"
+          },
+          "onAccent": {
+            "color": "#1A1A1A",
+            "fontSize": "16px",
+            "fontWeight": "600",
+            "application": "text_on_yellow_backgrounds"
+          }
+        },
+        "caption": {
+          "color": "#6B7280",
+          "fontSize": "12px",
+          "fontWeight": "400",
+          "lineHeight": "1.3"
+        },
+        "numbers": {
+          "large": {
+            "color": "#FFFFFF",
+            "fontSize": "32px",
+            "fontWeight": "700",
+            "application": "step_counts, calorie_counts"
+          },
+          "medium": {
+            "color": "#FFFFFF",
+            "fontSize": "24px",
+            "fontWeight": "600",
+            "application": "duration_displays"
+          }
+        }
+      },
+      "progressIndicators": {
+        "circular": {
+          "trackColor": "rgba(255, 255, 255, 0.2)",
+          "fillColor": "#C4FF4A",
+          "backgroundColor": "transparent",
+          "strokeWidth": "8px",
+          "application": "calorie_progress, goal_progress"
+        },
+        "linear": {
+          "trackColor": "rgba(255, 255, 255, 0.2)",
+          "fillColor": "#C4FF4A",
+          "borderRadius": "4px",
+          "height": "8px",
+          "application": "workout_progress_bars"
+        }
+      },
+      "calendar": {
+        "container": {
+          "background": "#2A2A2A",
+          "borderRadius": "16px",
+          "padding": "16px"
+        },
+        "dayCell": {
+          "default": {
+            "background": "transparent",
+            "textColor": "#9CA3AF",
+            "width": "32px",
+            "height": "32px",
+            "borderRadius": "8px"
+          },
+          "today": {
+            "background": "#C4FF4A",
+            "textColor": "#1A1A1A",
+            "fontWeight": "600"
+          },
+          "selected": {
+            "background": "#3A3A3A",
+            "textColor": "#FFFFFF"
+          }
+        },
+        "header": {
+          "textColor": "#FFFFFF",
+          "fontSize": "18px",
+          "fontWeight": "600"
+        }
+      },
+      "bottomNavigation": {
+        "background": "rgba(26, 26, 26, 0.95)",
+        "backdropFilter": "blur(20px)",
+        "borderTop": "1px solid rgba(255, 255, 255, 0.1)",
+        "padding": "12px 0",
+        "items": {
+          "spacing": "equal_distribution",
+          "iconSize": "24px",
+          "textSize": "12px"
+        }
+      }
+    },
+    "shadows": {
+      "card": "0 4px 20px rgba(0, 0, 0, 0.15)",
+      "cardElevated": "0 6px 24px rgba(0, 0, 0, 0.2)",
+      "button": "0 2px 8px rgba(0, 0, 0, 0.1)",
+      "accent": {
+        "yellow": "0 4px 20px rgba(196, 255, 74, 0.2)",
+        "purple": "0 4px 16px rgba(139, 92, 246, 0.25)",
+        "pink": "0 4px 16px rgba(236, 72, 153, 0.25)"
+      }
+    },
+    "spacing": {
+      "xs": "4px",
+      "sm": "8px",
+      "md": "12px",
+      "lg": "16px",
+      "xl": "20px",
+      "xxl": "24px",
+      "xxxl": "32px"
+    },
+    "borderRadius": {
+      "sm": "8px",
+      "md": "12px",
+      "lg": "16px",
+      "xl": "20px",
+      "full": "50%"
+    },
+    "DO_NOT_RULES": {
+      "gradients": [
+        "Never apply card gradients to icons or text elements",
+        "Never apply workout card gradients to navigation elements",
+        "Never use gradients on main screen backgrounds - keep solid dark"
+      ],
+      "colors": [
+        "Never use accent colors for body text - reserve for highlights only",
+        "Never apply button colors to card backgrounds",
+        "Never use card background colors for text elements"
+      ],
+      "shadows": [
+        "Never apply accent shadows to neutral elements",
+        "Never use card shadows on text or icons",
+        "Never stack multiple shadow types on single elements"
+      ],
+      "typography": [
+        "Never use onAccent text colors on dark backgrounds",
+        "Never apply heading styles to navigation text",
+        "Never use number styles for regular text content"
+      ]
+    },
+    "componentPatterns": {
+      "workoutCard": {
+        "structure": "gradient_background + rounded_corners + shadow + white_text + circular_icon",
+        "variations": ["purple_gradient", "pink_gradient"],
+        "contentHierarchy": "title_primary + subtitle_secondary + duration_accent"
+      },
+      "highlightCard": {
+        "structure": "yellow_gradient + rounded_corners + yellow_shadow + dark_text",
+        "application": "challenges, achievements, call_to_action"
+      },
+      "videoPlayer": {
+        "structure": "dark_background + gradient_overlay + floating_controls + timer_display",
+        "controls": "white_circular_buttons + shadow"
+      }
+    }
+  }
+}

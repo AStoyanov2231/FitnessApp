@@ -1,0 +1,53 @@
+**Fitness App Requirements Document**
+
+**1. Overview:**
+   - The app is designed to help users organize and track their workouts.
+   - Users can create folders or notebooks for their workouts.
+   - Each workout session is stored in a separate folder.
+
+**2. User Features:**
+
+   **2.1. Workout Organization:**
+   - Users can create a folder or notebook for their workouts.
+   - Each workout session is represented as a separate folder.
+   - Users can create multiple folders, e.g., one for each workout session in a week.
+
+   **2.2. Exercise Tracking:**
+   - Within each workout folder, users can add exercises.
+   - Users can track repetitions and weights used for each exercise.
+   - Exercise names can be customized by the user.
+   - Users can also choose exercise names from a predefined list.
+
+   **2.3. Progress Tracking:**
+   - The app saves the date and results of each workout session.
+   - Users can add new entries to the same folder for subsequent weeks.
+
+**3. Technical Requirements:**
+
+   **3.1. Data Storage:**
+   - Use a local database to store workout data, including folders, exercises, repetitions, weights, and dates.
+
+   **3.2. User Interface:**
+   - Design a user-friendly interface for creating and managing workout folders.
+   - Provide options for adding, editing, and deleting exercises within a folder.
+   - Implement a calendar view to track workout dates and results.
+
+   **3.3. Customization:**
+   - Allow users to customize exercise names.
+   - Provide a list of predefined exercises for users to choose from.
+
+**4. Additional Features:**
+
+   **4.1. Notifications:**
+   - Implement notifications to remind users of their workout schedule.
+
+   **4.2. Data Backup:**
+   - Provide an option for users to back up their workout data to the cloud.
+
+**5. Future Enhancements:**
+
+   **5.1. Social Sharing:**
+   - Allow users to share their workout progress on social media platforms.
+
+   **5.2. Analytics:**
+   - Provide analytics to track progress over time, such as improvements in repetitions and weights. 
