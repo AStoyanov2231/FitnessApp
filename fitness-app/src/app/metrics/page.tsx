@@ -11,9 +11,72 @@ interface MetricsData {
   workouts: number[];
 }
 
+interface ExerciseProgress {
+  exerciseName: string;
+  data: {
+    date: string;
+    maxWeight: number;
+    maxReps: number;
+    totalVolume: number; // weight * reps * sets
+  }[];
+}
+
+interface WorkoutSession {
+  id: string;
+  name: string;
+  bodyPart: string;
+  date: string;
+  duration: number;
+  calories: number;
+  status: string;
+  notes: string;
+  exercises: {
+    id: string;
+    name: string;
+    sets: {
+      reps: number;
+      weight?: number;
+      calories?: number;
+    }[];
+  }[];
+}
+
+// Helper function to process exercise progress data
+const processExerciseProgress = (sessions: WorkoutSession[]): ExerciseProgress[] => {
+  const exerciseMap = new Map<string, { date: string; maxWeight: number; maxReps: number; totalVolume: number; }[]>();
+  
+  sessions.forEach(session => {
+    session.exercises.forEach(exercise => {
+      if (exercise.sets.length > 0) {
+        const maxWeight = Math.max(...exercise.sets.map(set => set.weight || 0));
+        const maxReps = Math.max(...exercise.sets.map(set => set.reps));
+        const totalVolume = exercise.sets.reduce((total, set) => total + (set.reps * (set.weight || 0)), 0);
+        
+        if (!exerciseMap.has(exercise.name)) {
+          exerciseMap.set(exercise.name, []);
+        }
+        
+        exerciseMap.get(exercise.name)!.push({
+          date: session.date,
+          maxWeight,
+          maxReps,
+          totalVolume
+        });
+      }
+    });
+  });
+  
+  return Array.from(exerciseMap.entries()).map(([exerciseName, data]) => ({
+    exerciseName,
+    data: data.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+  }));
+};
+
 export default function MetricsPage() {
   const [selectedPeriod, setSelectedPeriod] = useState<'week' | 'month'>('week');
   const [activeChartBar, setActiveChartBar] = useState(0);
+  const [selectedView, setSelectedView] = useState<'overview' | 'exercises'>('overview');
+  const [selectedExercise, setSelectedExercise] = useState<string>('');
   const [metricsData, setMetricsData] = useState<{
     week: MetricsData;
     month: MetricsData;
@@ -23,6 +86,8 @@ export default function MetricsPage() {
   });
   const [goals, setGoals] = useState<Goal[]>([]);
   const [isGoalManagerOpen, setIsGoalManagerOpen] = useState(false);
+  const [exerciseProgress, setExerciseProgress] = useState<ExerciseProgress[]>([]);
+
 
   useEffect(() => {
     const loadMetricsData = () => {
@@ -50,6 +115,21 @@ export default function MetricsPage() {
       const savedGoals = localStorage.getItem('fitness-goals');
       if (savedGoals) {
         setGoals(JSON.parse(savedGoals));
+      }
+
+      // Load workout sessions for exercise progress tracking
+      const savedSessions = localStorage.getItem('workout-sessions');
+      if (savedSessions) {
+        const sessions: WorkoutSession[] = JSON.parse(savedSessions);
+        
+        // Process exercise progress data
+        const progressData = processExerciseProgress(sessions);
+        setExerciseProgress(progressData);
+        
+        // Set first exercise as selected if available
+        if (progressData.length > 0) {
+          setSelectedExercise(progressData[0].exerciseName);
+        }
       }
     };
 
@@ -137,105 +217,288 @@ export default function MetricsPage() {
 
       </div>
 
-      {/* Period Selector */}
-      <div className="exercise-tabs" style={{ marginBottom: '24px' }}>
+      {/* View Selector */}
+      <div className="exercise-tabs" style={{ marginBottom: '16px' }}>
         <button
-          className={`tab-btn ${selectedPeriod === 'week' ? 'active' : ''}`}
-          onClick={() => setSelectedPeriod('week')}
+          className={`tab-btn ${selectedView === 'overview' ? 'active' : ''}`}
+          onClick={() => setSelectedView('overview')}
         >
-          Week
+          Overview
         </button>
         <button
-          className={`tab-btn ${selectedPeriod === 'month' ? 'active' : ''}`}
-          onClick={() => setSelectedPeriod('month')}
+          className={`tab-btn ${selectedView === 'exercises' ? 'active' : ''}`}
+          onClick={() => setSelectedView('exercises')}
         >
-          Month
+          Exercise Progress
         </button>
       </div>
 
-      {/* Summary Cards */}
-      <div className="progress-grid" style={{ marginBottom: '24px' }}>
-        <div className="progress-card">
-          <div className="progress-number">{averageCalories.toLocaleString()}</div>
-          <div className="progress-label">Avg Daily Calories</div>
+      {/* Period Selector - Only show for overview */}
+      {selectedView === 'overview' && (
+        <div className="exercise-tabs" style={{ marginBottom: '24px' }}>
+          <button
+            className={`tab-btn ${selectedPeriod === 'week' ? 'active' : ''}`}
+            onClick={() => setSelectedPeriod('week')}
+          >
+            Week
+          </button>
+          <button
+            className={`tab-btn ${selectedPeriod === 'month' ? 'active' : ''}`}
+            onClick={() => setSelectedPeriod('month')}
+          >
+            Month
+          </button>
         </div>
-        <div className="progress-card">
-          <div className="progress-number">{averageSteps.toLocaleString()}</div>
-          <div className="progress-label">Avg Daily Steps</div>
-        </div>
-      </div>
+      )}
 
-      {/* Empty State for Charts */}
-      {currentData.calories.every(val => val === 0) ? (
-        <div className="chart-container">
-          <div style={{ textAlign: 'center', padding: '40px 20px', color: '#9CA3AF' }}>
-            <div style={{ fontSize: '48px', marginBottom: '16px' }}>📈</div>
-            <h3 style={{ color: '#FFFFFF', marginBottom: '8px' }}>No Data Yet</h3>
-            <p>Start tracking your workouts to see your progress here!</p>
-            <Link href="/workouts" className="btn-primary" style={{ marginTop: '16px', display: 'inline-block', width: 'auto', padding: '8px 16px' }}>
-              Start a Workout
-            </Link>
-          </div>
+      {/* Exercise Selector - Only show for exercise progress */}
+      {selectedView === 'exercises' && exerciseProgress.length > 0 && (
+        <div className="exercise-tabs" style={{ marginBottom: '24px' }}>
+          {exerciseProgress.map((exercise) => (
+            <button
+              key={exercise.exerciseName}
+              className={`tab-btn ${selectedExercise === exercise.exerciseName ? 'active' : ''}`}
+              onClick={() => setSelectedExercise(exercise.exerciseName)}
+            >
+              {exercise.exerciseName}
+            </button>
+          ))}
         </div>
-      ) : (
+      )}
+
+      {/* Overview View */}
+      {selectedView === 'overview' && (
         <>
-          {/* Calories Chart */}
-          <div className="chart-container">
-            <div className="chart-header">
-              <h3 className="chart-title">Calories Burned</h3>
-              <span className="chart-period">
-                {selectedPeriod === 'week' ? 'This Week' : 'This Month'}
-              </span>
+          {/* Summary Cards */}
+          <div className="progress-grid" style={{ marginBottom: '24px' }}>
+            <div className="progress-card">
+              <div className="progress-number">{averageCalories.toLocaleString()}</div>
+              <div className="progress-label">Avg Daily Calories</div>
             </div>
-            <div className="chart">
-              {currentData.calories.map((value, index) => (
-                <div
-                  key={index}
-                  className={`chart-bar ${index === activeChartBar ? 'active' : ''}`}
-                  style={{ 
-                    height: Math.max(...currentData.calories) > 0 
-                      ? `${(value / Math.max(...currentData.calories)) * 100}%`
-                      : '20px'
-                  }}
-                  onClick={() => handleChartBarClick(index)}
-                />
-              ))}
-            </div>
-            <div className="chart-labels">
-              {labels.map((label, index) => (
-                <span key={index} className="chart-label">{label}</span>
-              ))}
+            <div className="progress-card">
+              <div className="progress-number">{averageSteps.toLocaleString()}</div>
+              <div className="progress-label">Avg Daily Steps</div>
             </div>
           </div>
 
-          {/* Steps Chart */}
-          <div className="chart-container">
-            <div className="chart-header">
-              <h3 className="chart-title">Steps</h3>
-              <span className="chart-period">
-                {selectedPeriod === 'week' ? 'This Week' : 'This Month'}
-              </span>
+          {/* Empty State for Charts */}
+          {currentData.calories.every(val => val === 0) ? (
+            <div className="chart-container">
+              <div style={{ textAlign: 'center', padding: '40px 20px', color: '#9CA3AF' }}>
+                <div className="goal-icon">
+                  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M3 3v18h18"/>
+                    <path d="m19 9-5 5-4-4-3 3"/>
+                  </svg>
+                </div>
+                <h3 style={{ color: '#FFFFFF', marginBottom: '8px', fontSize: '18px', fontWeight: '600' }}>No Data Yet</h3>
+                <p style={{ fontSize: '14px', marginBottom: '16px', color: '#9CA3AF' }}>Start tracking your workouts to see your progress here!</p>
+                <Link href="/workouts" className="btn-primary" style={{ marginTop: '16px', display: 'inline-block', width: 'auto', padding: '8px 16px' }}>
+                  Start a Workout
+                </Link>
+              </div>
             </div>
-            <div className="chart">
-              {currentData.steps.map((value, index) => (
-                <div
-                  key={index}
-                  className={`chart-bar ${index === activeChartBar ? 'active' : ''}`}
-                  style={{ 
-                    height: Math.max(...currentData.steps) > 0 
-                      ? `${(value / Math.max(...currentData.steps)) * 100}%`
-                      : '20px'
-                  }}
-                  onClick={() => handleChartBarClick(index)}
-                />
-              ))}
+          ) : (
+            <>
+              {/* Calories Chart */}
+              <div className="chart-container">
+                <div className="chart-header">
+                  <h3 className="chart-title">Calories Burned</h3>
+                  <span className="chart-period">
+                    {selectedPeriod === 'week' ? 'This Week' : 'This Month'}
+                  </span>
+                </div>
+                <div className="chart">
+                  {currentData.calories.map((value, index) => (
+                    <div
+                      key={index}
+                      className={`chart-bar ${index === activeChartBar ? 'active' : ''}`}
+                      style={{ 
+                        height: Math.max(...currentData.calories) > 0 
+                          ? `${(value / Math.max(...currentData.calories)) * 100}%`
+                          : '20px'
+                      }}
+                      onClick={() => handleChartBarClick(index)}
+                    />
+                  ))}
+                </div>
+                <div className="chart-labels">
+                  {labels.map((label, index) => (
+                    <span key={index} className="chart-label">{label}</span>
+                  ))}
+                </div>
+              </div>
+
+              {/* Steps Chart */}
+              <div className="chart-container">
+                <div className="chart-header">
+                  <h3 className="chart-title">Steps</h3>
+                  <span className="chart-period">
+                    {selectedPeriod === 'week' ? 'This Week' : 'This Month'}
+                  </span>
+                </div>
+                <div className="chart">
+                  {currentData.steps.map((value, index) => (
+                    <div
+                      key={index}
+                      className={`chart-bar ${index === activeChartBar ? 'active' : ''}`}
+                      style={{ 
+                        height: Math.max(...currentData.steps) > 0 
+                          ? `${(value / Math.max(...currentData.steps)) * 100}%`
+                          : '20px'
+                      }}
+                      onClick={() => handleChartBarClick(index)}
+                    />
+                  ))}
+                </div>
+                <div className="chart-labels">
+                  {labels.map((label, index) => (
+                    <span key={index} className="chart-label">{label}</span>
+                  ))}
+                </div>
+              </div>
+            </>
+          )}
+        </>
+      )}
+
+      {/* Exercise Progress View */}
+      {selectedView === 'exercises' && (
+        <>
+          {exerciseProgress.length === 0 ? (
+            <div className="chart-container">
+              <div style={{ textAlign: 'center', padding: '40px 20px', color: '#9CA3AF' }}>
+                <div className="goal-icon">
+                  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M9 12l2 2 4-4"/>
+                    <path d="M21 12c-1 0-3-1-3-3s2-3 3-3 3 1 3 3-2 3-3 3"/>
+                    <path d="M3 12c1 0 3-1 3-3s-2-3-3-3-3 1-3 3 2 3 3 3"/>
+                    <path d="M12 3c0 1-1 3-3 3s-3-2-3-3 1-3 3-3 3 2 3 3"/>
+                    <path d="M12 21c0-1 1-3 3-3s3 2 3 3-1 3-3 3-3-2-3-3"/>
+                  </svg>
+                </div>
+                <h3 style={{ color: '#FFFFFF', marginBottom: '8px', fontSize: '18px', fontWeight: '600' }}>No Exercise Data</h3>
+                <p style={{ fontSize: '14px', marginBottom: '16px', color: '#9CA3AF' }}>
+                  Complete workouts with exercises to see your progress here
+                </p>
+                <Link href="/workouts" className="btn-primary" style={{ marginTop: '16px', display: 'inline-block', width: 'auto', padding: '8px 16px' }}>
+                  Start a Workout
+                </Link>
+              </div>
             </div>
-            <div className="chart-labels">
-              {labels.map((label, index) => (
-                <span key={index} className="chart-label">{label}</span>
-              ))}
-            </div>
-          </div>
+          ) : (
+            <>
+              {/* Exercise Progress Charts */}
+              {(() => {
+                const currentExerciseData = exerciseProgress.find(ex => ex.exerciseName === selectedExercise);
+                if (!currentExerciseData) return null;
+
+                const maxWeight = Math.max(...currentExerciseData.data.map(d => d.maxWeight));
+                const maxReps = Math.max(...currentExerciseData.data.map(d => d.maxReps));
+                const maxVolume = Math.max(...currentExerciseData.data.map(d => d.totalVolume));
+
+                return (
+                  <>
+                    {/* Progress Summary */}
+                    <div className="progress-grid" style={{ marginBottom: '24px' }}>
+                      <div className="progress-card">
+                        <div className="progress-number">{maxWeight}kg</div>
+                        <div className="progress-label">Max Weight</div>
+                      </div>
+                      <div className="progress-card">
+                        <div className="progress-number">{maxReps}</div>
+                        <div className="progress-label">Max Reps</div>
+                      </div>
+                    </div>
+
+                    {/* Weight Progress Chart */}
+                    <div className="chart-container">
+                      <div className="chart-header">
+                        <h3 className="chart-title">Weight Progress - {selectedExercise}</h3>
+                        <span className="chart-period">Last {currentExerciseData.data.length} Sessions</span>
+                      </div>
+                      <div className="chart">
+                        {currentExerciseData.data.map((dataPoint, index) => (
+                          <div
+                            key={index}
+                            className="chart-bar"
+                            style={{ 
+                              height: maxWeight > 0 ? `${(dataPoint.maxWeight / maxWeight) * 100}%` : '20px',
+                              background: '#C4FF4A'
+                            }}
+                            title={`${dataPoint.date}: ${dataPoint.maxWeight}kg`}
+                          />
+                        ))}
+                      </div>
+                      <div className="chart-labels">
+                        {currentExerciseData.data.map((dataPoint, index) => (
+                          <span key={index} className="chart-label">
+                            {new Date(dataPoint.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Reps Progress Chart */}
+                    <div className="chart-container">
+                      <div className="chart-header">
+                        <h3 className="chart-title">Reps Progress - {selectedExercise}</h3>
+                        <span className="chart-period">Last {currentExerciseData.data.length} Sessions</span>
+                      </div>
+                      <div className="chart">
+                        {currentExerciseData.data.map((dataPoint, index) => (
+                          <div
+                            key={index}
+                            className="chart-bar"
+                            style={{ 
+                              height: maxReps > 0 ? `${(dataPoint.maxReps / maxReps) * 100}%` : '20px',
+                              background: '#8B5CF6'
+                            }}
+                            title={`${dataPoint.date}: ${dataPoint.maxReps} reps`}
+                          />
+                        ))}
+                      </div>
+                      <div className="chart-labels">
+                        {currentExerciseData.data.map((dataPoint, index) => (
+                          <span key={index} className="chart-label">
+                            {new Date(dataPoint.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Volume Progress Chart */}
+                    <div className="chart-container">
+                      <div className="chart-header">
+                        <h3 className="chart-title">Total Volume - {selectedExercise}</h3>
+                        <span className="chart-period">Last {currentExerciseData.data.length} Sessions</span>
+                      </div>
+                      <div className="chart">
+                        {currentExerciseData.data.map((dataPoint, index) => (
+                          <div
+                            key={index}
+                            className="chart-bar"
+                            style={{ 
+                              height: maxVolume > 0 ? `${(dataPoint.totalVolume / maxVolume) * 100}%` : '20px',
+                              background: '#EC4899'
+                            }}
+                            title={`${dataPoint.date}: ${dataPoint.totalVolume}kg total`}
+                          />
+                        ))}
+                      </div>
+                      <div className="chart-labels">
+                        {currentExerciseData.data.map((dataPoint, index) => (
+                          <span key={index} className="chart-label">
+                            {new Date(dataPoint.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  </>
+                );
+              })()}
+            </>
+          )}
         </>
       )}
 
@@ -269,7 +532,13 @@ export default function MetricsPage() {
         {goals.length === 0 ? (
           <div className="goal-card">
             <div style={{ textAlign: 'center', padding: '40px 20px', color: '#9CA3AF' }}>
-              <div style={{ fontSize: '48px', marginBottom: '16px' }}>🎯</div>
+              <div className="goal-icon">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <circle cx="12" cy="12" r="10"/>
+                  <circle cx="12" cy="12" r="6"/>
+                  <circle cx="12" cy="12" r="2"/>
+                </svg>
+              </div>
               <h3 style={{ color: '#FFFFFF', marginBottom: '8px' }}>No Goals Set</h3>
               <p>Set your first goal to start tracking your progress!</p>
               <button

@@ -58,7 +58,7 @@ export function WorkoutProvider({ children }: { children: React.ReactNode }) {
     return () => {
       if (interval) clearInterval(interval);
     };
-  }, [currentWorkout?.isActive, currentWorkout?.isPaused]);
+  }, [currentWorkout]);
 
   const startWorkout = (bodyPart: string) => {
     const newWorkout: WorkoutSession = {

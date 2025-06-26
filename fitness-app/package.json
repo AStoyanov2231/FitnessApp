@@ -6,9 +6,15 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "build:mobile": "next build && npx cap sync",
+    "android:build": "npx cap build android",
+    "android:open": "npx cap open android"
   },
   "dependencies": {
+    "@capacitor/android": "^6.2.1",
+    "@capacitor/cli": "^6.2.1",
+    "@capacitor/core": "^6.2.1",
     "@stagewise-plugins/react": "^0.4.9",
     "@stagewise/toolbar-next": "^0.4.9",
     "next": "15.3.4",

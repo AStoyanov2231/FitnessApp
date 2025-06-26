@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useWorkout } from '@/components/WorkoutContext';
 
@@ -13,6 +12,18 @@ interface WorkoutSession {
   calories: number;
   status: 'Completed' | 'In Progress' | 'Paused';
   notes?: string;
+  bodyPart?: string;
+  exercises?: Exercise[];
+}
+
+interface Exercise {
+  id: string;
+  name: string;
+  sets: {
+    reps: number;
+    weight?: number;
+    calories?: number;
+  }[];
 }
 
 interface BodyPart {
@@ -26,7 +37,7 @@ export default function WorkoutsPage() {
   const [recentSessions, setRecentSessions] = useState<WorkoutSession[]>([]);
   const [showAllSessions, setShowAllSessions] = useState(false);
   const [selectedBodyPart, setSelectedBodyPart] = useState<string | null>(null);
-  const [selectedSession, setSelectedSession] = useState<any | null>(null);
+  const [selectedSession, setSelectedSession] = useState<WorkoutSession | null>(null);
   const [swipeState, setSwipeState] = useState<{[key: string]: { 
     offset: number; 
     showDelete: boolean; 
@@ -179,7 +190,7 @@ export default function WorkoutsPage() {
     const existingSessions = localStorage.getItem('workout-sessions');
     if (existingSessions) {
       const sessions = JSON.parse(existingSessions);
-      const updatedSessions = sessions.filter((session: any) => session.id !== sessionId);
+      const updatedSessions = sessions.filter((session: WorkoutSession) => session.id !== sessionId);
       localStorage.setItem('workout-sessions', JSON.stringify(updatedSessions));
     }
 
@@ -342,7 +353,7 @@ export default function WorkoutsPage() {
         <div className="workout-section" style={{ marginBottom: '32px' }}>
           <h2 className="section-title" style={{ marginBottom: '16px' }}>Recent Sessions</h2>
           <div style={{ display: 'grid', gap: '12px' }}>
-            {topRecentSessions.map((session: any) => {
+            {topRecentSessions.map((session: WorkoutSession) => {
               const currentSwipe = swipeState[session.id] || { offset: 0, showDelete: false };
               
               return (
@@ -422,7 +433,7 @@ export default function WorkoutsPage() {
                         </p>
                         {session.notes && (
                           <p style={{ color: '#6B7280', fontSize: '12px', fontStyle: 'italic' }}>
-                            "{session.notes}"
+                            &ldquo;{session.notes}&rdquo;
                           </p>
                         )}
                       </div>
@@ -491,7 +502,7 @@ export default function WorkoutsPage() {
 
         {showAllSessions && (
           <div style={{ display: 'grid', gap: '12px' }}>
-            {recentSessions.map((session: any) => {
+            {recentSessions.map((session: WorkoutSession) => {
               const currentSwipe = swipeState[session.id] || { offset: 0, showDelete: false };
               
               return (
@@ -569,7 +580,7 @@ export default function WorkoutsPage() {
                         </p>
                         {session.notes && (
                           <p style={{ color: '#6B7280', fontSize: '12px', marginTop: '4px', fontStyle: 'italic' }}>
-                            "{session.notes}"
+                            &ldquo;{session.notes}&rdquo;
                           </p>
                         )}
                       </div>
@@ -650,7 +661,7 @@ export default function WorkoutsPage() {
             {selectedSession.exercises && selectedSession.exercises.length > 0 && (
               <div>
                 <h3 style={{ color: '#C4FF4A', fontSize: '16px', marginBottom: '16px' }}>Exercises</h3>
-                {selectedSession.exercises.map((exercise: any, index: number) => (
+                {selectedSession.exercises.map((exercise: Exercise, index: number) => (
                   <div key={index} style={{
                     background: '#1A1A1A',
                     borderRadius: '12px',
@@ -658,7 +669,7 @@ export default function WorkoutsPage() {
                     marginBottom: '12px'
                   }}>
                     <h4 style={{ color: '#FFFFFF', fontSize: '16px', marginBottom: '12px' }}>{exercise.name}</h4>
-                    {exercise.sets.map((set: any, setIndex: number) => (
+                    {exercise.sets.map((set: { reps: number; weight?: number; calories?: number }, setIndex: number) => (
                       <div key={setIndex} style={{
                         background: '#2A2A2A',
                         borderRadius: '6px',

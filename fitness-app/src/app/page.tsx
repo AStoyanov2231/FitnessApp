@@ -4,22 +4,18 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import GoalManager, { Goal } from '@/components/GoalManager';
 import { useWorkout } from '@/components/WorkoutContext';
+import { useStepTracker } from '@/components/StepTracker';
 
-interface WorkoutSession {
-  id: string;
-  name: string;
-  duration: number;
-  isActive: boolean;
-  startTime?: string;
-  calories?: number;
-}
+// Removed unused interface WorkoutSession
 
 export default function HomePage() {
   const [goals, setGoals] = useState<Goal[]>([]);
   const [isGoalManagerOpen, setIsGoalManagerOpen] = useState(false);
   const [dailyCalories, setDailyCalories] = useState(0);
-  const [dailySteps, setDailySteps] = useState(0);
   const [currentTime, setCurrentTime] = useState(new Date());
+  
+  // Use step tracker hook
+  const { stepData, isTracking } = useStepTracker();
   
   // Workout tracking states
   const [newExerciseName, setNewExerciseName] = useState('');
@@ -30,8 +26,6 @@ export default function HomePage() {
   
   const { 
     currentWorkout, 
-    pauseWorkout, 
-    resumeWorkout, 
     endWorkout, 
     addExercise, 
     addSet, 
@@ -60,9 +54,7 @@ export default function HomePage() {
     localStorage.setItem('daily-calories', dailyCalories.toString());
   }, [dailyCalories]);
 
-  useEffect(() => {
-    localStorage.setItem('daily-steps', dailySteps.toString());
-  }, [dailySteps]);
+
 
   useEffect(() => {
     const loadData = () => {
@@ -74,9 +66,7 @@ export default function HomePage() {
       
       // Load daily stats from localStorage or start with 0
       const savedCalories = localStorage.getItem('daily-calories');
-      const savedSteps = localStorage.getItem('daily-steps');
       setDailyCalories(savedCalories ? parseInt(savedCalories) : 0);
-      setDailySteps(savedSteps ? parseInt(savedSteps) : 0);
     };
 
     loadData();
@@ -106,18 +96,10 @@ export default function HomePage() {
 
   const refreshDailyStats = () => {
     const savedCalories = localStorage.getItem('daily-calories');
-    const savedSteps = localStorage.getItem('daily-steps');
     setDailyCalories(savedCalories ? parseInt(savedCalories) : 0);
-    setDailySteps(savedSteps ? parseInt(savedSteps) : 0);
   };
 
-  // Function to reset daily stats (useful for testing or daily reset)
-  const resetDailyStats = () => {
-    setDailyCalories(0);
-    setDailySteps(0);
-    localStorage.setItem('daily-calories', '0');
-    localStorage.setItem('daily-steps', '0');
-  };
+  // Removed unused resetDailyStats function
 
   // Refresh daily stats when the component becomes visible (e.g., after completing a workout)
   useEffect(() => {
@@ -228,7 +210,7 @@ export default function HomePage() {
             <div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
               <input
                 type="text"
-                placeholder="Exercise name (e.g., Push-ups)"
+                placeholder="Exercise name . . ."
                 value={newExerciseName}
                 onChange={(e) => setNewExerciseName(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && handleAddExercise()}
@@ -482,8 +464,13 @@ export default function HomePage() {
       ) : (
         <div className="session-card">
           <div style={{ textAlign: 'center', padding: '20px' }}>
-            <div style={{ fontSize: '32px', marginBottom: '12px' }}>⏱️</div>
-            <h3 style={{ marginBottom: '24px' }}>No Active Session</h3>
+            <div className="session-icon">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <circle cx="12" cy="12" r="10"/>
+                <polyline points="12,6 12,12 16,14"/>
+              </svg>
+            </div>
+            <h3 style={{ marginBottom: '24px', fontWeight: '600', fontSize: '18px' }}>No Active Session</h3>
             <Link href="/workouts" className="btn-primary">
               Start Workout
             </Link>
@@ -494,14 +481,29 @@ export default function HomePage() {
       {/* Daily Progress */}
       <div className="progress-grid">
         <div className="progress-card">
-          <div className="progress-icon">🔥</div>
+          <div className="progress-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/>
+            </svg>
+          </div>
           <div className="progress-number">{dailyCalories}</div>
-          <div className="progress-label">Calories</div>
+          <div className="progress-label">Calories Burned</div>
         </div>
         <div className="progress-card">
-          <div className="progress-icon">👣</div>
-          <div className="progress-number">{dailySteps.toLocaleString()}</div>
-          <div className="progress-label">Steps</div>
+          <div className="progress-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+              <circle cx="9" cy="7" r="4"/>
+              <path d="m22 22-2-2"/>
+            </svg>
+          </div>
+          <div className="progress-number">{stepData.steps.toLocaleString()}</div>
+          <div className="progress-label">
+            Steps Taken
+            <span className={`tracking-status ${isTracking ? 'active' : 'inactive'}`}>
+              {isTracking ? 'Tracking' : 'Inactive'}
+            </span>
+          </div>
         </div>
       </div>
 
@@ -546,9 +548,15 @@ export default function HomePage() {
         {recentGoals.length === 0 ? (
           <div className="goal-card">
             <div style={{ textAlign: 'center', padding: '30px 20px', color: '#9CA3AF' }}>
-              <div style={{ fontSize: '32px', marginBottom: '12px' }}>🎯</div>
-              <h3 style={{ color: '#FFFFFF', marginBottom: '8px', fontSize: '16px' }}>No Goals Yet</h3>
-              <p style={{ fontSize: '14px', marginBottom: '16px' }}>
+              <div className="goal-icon">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <circle cx="12" cy="12" r="10"/>
+                  <circle cx="12" cy="12" r="6"/>
+                  <circle cx="12" cy="12" r="2"/>
+                </svg>
+              </div>
+              <h3 style={{ color: '#FFFFFF', marginBottom: '8px', fontSize: '18px', fontWeight: '600' }}>No Goals Yet</h3>
+              <p style={{ fontSize: '14px', marginBottom: '16px', color: '#9CA3AF' }}>
                 Set goals to track your progress
               </p>
               <button

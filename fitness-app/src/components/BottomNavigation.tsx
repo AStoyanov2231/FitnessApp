@@ -4,14 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
-export default function BottomNavigation() {
-  const pathname = usePathname();
-  const [activeIndex, setActiveIndex] = useState(0);
-  const [previousIndex, setPreviousIndex] = useState(0);
-  const [isAnimating, setIsAnimating] = useState(false);
-  const [animationPhase, setAnimationPhase] = useState<'idle' | 'stretching' | 'retracting'>('idle');
-
-  const navItems = [
+const navItems = [
     {
       name: 'Home',
       href: '/',
@@ -39,7 +32,14 @@ export default function BottomNavigation() {
         </svg>
       )
     }
-  ];
+];
+
+export default function BottomNavigation() {
+  const pathname = usePathname();
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [previousIndex, setPreviousIndex] = useState(0);
+  const [, setIsAnimating] = useState(false);
+  const [animationPhase, setAnimationPhase] = useState<'idle' | 'stretching' | 'retracting'>('idle');
 
   // Update active index when pathname changes
   useEffect(() => {
@@ -50,7 +50,7 @@ export default function BottomNavigation() {
       setAnimationPhase('stretching');
       
       // Phase 1: Stretch towards target (200ms for snappier animation)
-      const stretchTimer = setTimeout(() => {
+      setTimeout(() => {
         setActiveIndex(newIndex);
         setAnimationPhase('retracting');
         
@@ -63,9 +63,9 @@ export default function BottomNavigation() {
         return () => clearTimeout(retractTimer);
       }, 200);
       
-      return () => clearTimeout(stretchTimer);
+      // Cleanup handled by useEffect return
     }
-  }, [pathname, activeIndex, navItems]);
+      }, [pathname, activeIndex]);
 
   const handleNavClick = (index: number) => {
     if (index !== activeIndex) {
@@ -74,7 +74,7 @@ export default function BottomNavigation() {
       setAnimationPhase('stretching');
       
       // Phase 1: Stretch towards target
-      const stretchTimer = setTimeout(() => {
+      setTimeout(() => {
         setActiveIndex(index);
         setAnimationPhase('retracting');
         
